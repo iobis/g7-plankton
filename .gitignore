@@ -3,8 +3,6 @@
 *.Rproj
 eez_h3
 obis_cache
-obis_files
 goos_cache
-goos_files
 .Rproj.user
 
