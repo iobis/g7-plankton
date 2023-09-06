@@ -1,0 +1,13 @@
+---
+title: "Plankton data in OBIS and the GOOS BioEco portal"
+---
+
+Ward Appeltans, Pieter Provoost, Silas Principe
+
+## About
+
+This is a visualization of plankton data and metadata in the Ocean Biodiversity Information System (OBIS) and the GOOS BioEco portal for the G7 FSOI – GOOS workshop: Towards a global marine plankton observing network: development of a strategy and implementation plan, September 25 - 26, 2023, Paris, France.
+
+## Contact
+
+[w.appeltans@unesco.org](mailto:w.appeltans@unesco.org)

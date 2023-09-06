@@ -1,0 +1,53 @@
+---
+title: "Plankton programs in the GOOS BioEco portal"
+editor_options: 
+  chunk_output_type: console
+---
+
+## Visualize all plankton programs
+
+Read all phytoplankton and zooplankton programs and visualize on a map:
+
+```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=12, fig.height=7, cache=TRUE}
+library(sf)
+library(dplyr)
+library(glue)
+library(ggplot2)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+sf_use_s2(FALSE)
+
+keywords <- c(35, 36)
+keywords_encoded <- URLencode(paste0(keywords, collapse = "\\,"), reserved = TRUE)
+url <- glue("https://geonode.goosocean.org/geoserver/geonode/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aall_layers&maxFeatures=10000&outputFormat=application%2Fjson&viewparams=where:where%20(array%5B{keywords_encoded}%5D%20%26%26%20keywords)")
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+programs_raw <- st_read(url, quiet = TRUE) %>%
+  st_make_valid()
+bbox <- st_as_sfc("POLYGON((-180 -90, -180 90, 179.9 90, 179.9 -90, -180 -90))", crs = 4326)
+programs <- st_crop(programs_raw, bbox) %>%
+  st_segmentize(dfMaxLength = 10000) %>%
+  st_wrap_dateline(options = c("WRAPDATELINE=YES", "DATELINEOFFSET=230"))
+
+ggplot() +
+  geom_sf(data = world, fill = "#dddddd", color = "#888888", lwd = 0.1) +
+  geom_sf(data = programs, color = "#16dbcb", fill = rgb(0.086, 0.8588, 0.796, 0.1), size = 0.5, linewidth = 0.25) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank(), 
+    panel.background = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "bottom",
+    legend.key.width = unit(2, "cm")
+  ) +
+  xlab("") + ylab("") +
+  coord_sf(crs = "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs" )
+```
