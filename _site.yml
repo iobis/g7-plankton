@@ -1,4 +1,5 @@
 name: "g7-plankton"
+output_dir: docs
 navbar:
   title: "G7 FSOI-GOOS plankton"
   left:
