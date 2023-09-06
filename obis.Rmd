@@ -145,3 +145,26 @@ eez_stats <- eez_stats %>%
 eez_stats %>%
   rmarkdown::paged_table(options = list(cols.min.print = 3))
 ```
+
+## Measurement types
+
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
+library(jsonlite)
+
+types_for_dataset <- function(dataset_id) {
+    types <- fromJSON(glue("https://api.obis.org/facet?datasetid={dataset_id}&size=100&facets=measurementType&absence=include&event=include"))$results$measurementType
+    if (is.data.frame(types)) {
+      types$dataset_id = dataset_id
+    }
+    types
+}
+
+types <- purrr::map(plankton_datasets$id, types_for_dataset) %>%
+  bind_rows()
+
+types %>%
+  group_by(key) %>%
+  summarize(records = sum(records)) %>%
+  arrange(desc(records)) %>%
+  rmarkdown::paged_table()
+```

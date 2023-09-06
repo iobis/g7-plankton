@@ -51,3 +51,25 @@ ggplot() +
   xlab("") + ylab("") +
   coord_sf(crs = "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs" )
 ```
+
+```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=12, fig.height=7, cache=TRUE}
+ggplot() +
+  geom_sf(data = world, fill = "#dddddd", color = "#888888", lwd = 0.1) +
+  geom_sf(data = programs, color = "#16dbcb", fill = rgb(0.086, 0.8588, 0.796, 0.1), size = 0.5, linewidth = 0.25) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank(), 
+    panel.background = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "bottom",
+    legend.key.width = unit(2, "cm")
+  ) +
+  xlab("") + ylab("") +
+  coord_sf(crs = "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs", xlim = c(-10700000, 2000000), ylim = c(1100000, 7500000))
+```
