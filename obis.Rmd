@@ -150,6 +150,7 @@ eez_stats %>%
 
 ```{r, message=FALSE, warning=FALSE, cache=TRUE}
 library(jsonlite)
+library(stringr)
 
 types_for_dataset <- function(dataset_id) {
     types <- fromJSON(glue("https://api.obis.org/facet?datasetid={dataset_id}&size=100&facets=measurementType&absence=include&event=include"))$results$measurementType
@@ -159,12 +160,86 @@ types_for_dataset <- function(dataset_id) {
     types
 }
 
+abundance_patterns <- c("abundance", "count", "abundace", "density", "abund", "number per cubic metre")
+biomass_patterns <- c("biomass", "biovolume", "wet_weight", "wetweight", "wet_weight", "carbon content", "carbon concentration", "dry weight", "organic matter: carbon")
+
 types <- purrr::map(plankton_datasets$id, types_for_dataset) %>%
-  bind_rows()
+  bind_rows() %>%
+  mutate(
+    abundance = str_detect(tolower(key), paste0(abundance_patterns, collapse = "|")),
+    biomass = str_detect(tolower(key), paste0(biomass_patterns, collapse = "|"))
+  )
 
 types %>%
   group_by(key) %>%
   summarize(records = sum(records)) %>%
   arrange(desc(records)) %>%
   rmarkdown::paged_table()
+```
+
+```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=12, fig.height=8, cache=TRUE}
+dataset_types <- types %>%
+  group_by(dataset_id) %>%
+  summarize(abundance = as.logical(sum(abundance)), biomass = as.logical(sum(biomass)))
+
+cells_type <- open_dataset("~/Desktop/temp/obis_20230726.parquet") %>%
+  filter(dataset_id %in% plankton_datasets$id) %>%
+  select(dataset_id, decimalLongitude, decimalLatitude) %>%
+  group_by(dataset_id, decimalLongitude, decimalLatitude) %>%
+  summarize(records = n()) %>%
+  collect() %>%
+  as.data.frame() %>%
+  left_join(dataset_types, by = "dataset_id") %>%
+  group_by(decimalLongitude, decimalLatitude) %>%
+  summarize(abundance = as.logical(sum(abundance, na.rm = TRUE)), biomass = as.logical(sum(biomass, na.rm = TRUE))) %>%
+  ungroup() %>%
+  mutate(h3 = row_to_geo(., h3_res_map)) %>%
+  group_by(h3) %>%
+  summarize(abundance = as.logical(sum(abundance, na.rm = TRUE)), biomass = as.logical(sum(biomass, na.rm = TRUE))) %>%
+  mutate(geom = cell_to_polygon(h3)) %>%
+  st_as_sf() %>%
+  st_wrap_dateline(options = c("WRAPDATELINE=YES", "DATELINEOFFSET=230"))
+
+ggplot() +
+  geom_sf(data = cells_type %>% filter(abundance == TRUE), aes_string(geometry = "geom"), color = "#16dbcb", fill = "#16dbcb", lwd = 0.04) +
+  geom_sf(data = world, fill = "#dddddd", color = "#888888", lwd = 0.1) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank(), 
+    panel.background = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "bottom",
+    legend.key.width = unit(2, "cm")
+  ) +
+  xlab("") + ylab("") + ggtitle("Abundance") +
+  coord_sf(crs = "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs" )
+```
+
+```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=12, fig.height=8, cache=TRUE}
+ggplot() +
+  geom_sf(data = cells_type %>% filter(biomass == TRUE), aes_string(geometry = "geom"), color = "#16dbcb", fill = "#16dbcb", lwd = 0.04) +
+  geom_sf(data = world, fill = "#dddddd", color = "#888888", lwd = 0.1) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank(), 
+    panel.background = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "bottom",
+    legend.key.width = unit(2, "cm")
+  ) +
+  xlab("") + ylab("") + ggtitle("Biomass") +
+  coord_sf(crs = "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs" )
+```
 ```
