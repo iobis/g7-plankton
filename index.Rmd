@@ -8,6 +8,10 @@ Ward Appeltans, Pieter Provoost, Silas Principe
 
 This is a visualization of plankton data and metadata in the Ocean Biodiversity Information System (OBIS) and the GOOS BioEco portal for the G7 FSOI – GOOS workshop: Towards a global marine plankton observing network: development of a strategy and implementation plan, September 25 - 26, 2023, Paris, France.
 
+## Code
+
+<https://github.com/iobis/g7-plankton>
+
 ## Contact
 
 [w.appeltans@unesco.org](mailto:w.appeltans@unesco.org)

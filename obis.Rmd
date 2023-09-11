@@ -22,7 +22,6 @@ plankton_datasets <- datasets %>%
     str_detect(title, regex("krill", ignore_case = T)) |
     str_detect(title, regex("ibss historical data", ignore_case = T)) |
     str_detect(title, regex("jodc dataset", ignore_case = T)) |
-    str_detect(title, regex("marine microbes", ignore_case = T)) |
     str_detect(title, regex("plankton", ignore_case = T)) |
     str_detect(title, regex("cpr.*survey", ignore_case = T))
   )
@@ -37,12 +36,24 @@ plankton_datasets %>%
   rmarkdown::paged_table()
 ```
 
+## Plankton data statistics
+
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
+library(arrow)
+
+plankton_stats <- open_dataset("~/Desktop/temp/obis_20230726.parquet") %>%
+  filter(dataset_id %in% plankton_datasets$id) %>%
+  summarize(datasets = n_distinct(dataset_id), species = n_distinct(speciesid), records = n()) %>%
+  collect()
+
+plankton_stats
+```
+
 ## Mapping plankton data
 
 For performance reasons we will work with a local copy of the OBIS database. Plankton data are aggregated on a hexagonal grid like this:
 
 ```{r, message=FALSE, warning=FALSE, cache=TRUE}
-library(arrow)
 library(h3)
 library(h3jsr)
 library(sf)
@@ -112,7 +123,6 @@ h3_res <- 7
 
 cells <- open_dataset("~/Desktop/temp/obis_20230726.parquet") %>%
   filter(dataset_id %in% plankton_datasets$id) %>%
-  select(decimalLongitude, decimalLatitude) %>%
   group_by(decimalLongitude, decimalLatitude) %>%
   summarize(records = n()) %>%
   collect() %>%
@@ -137,10 +147,10 @@ eez_stats <- eezs %>%
 
 # G7
 
-g7_eezs <- c("Canadian Exclusive Economic Zone", "French Exclusive Economic Zone", "French Guiana Exclusive Economic Zone", "French Polynesian Exclusive Economic Zone", "German Exclusive Economic Zone", "Italian Exclusive Economic Zone", "Japanese Exclusive Economic Zone", "United Kingdom Exclusive Economic Zone", "United States Exclusive Economic Zone", "United States Exclusive Economic Zone (Alaska)", "United States Exclusive Economic Zone (Hawaii)")
+g7_eez_names <- c("Canadian Exclusive Economic Zone", "French Exclusive Economic Zone", "French Guiana Exclusive Economic Zone", "French Polynesian Exclusive Economic Zone", "German Exclusive Economic Zone", "Italian Exclusive Economic Zone", "Japanese Exclusive Economic Zone", "United Kingdom Exclusive Economic Zone", "United States Exclusive Economic Zone", "United States Exclusive Economic Zone (Alaska)", "United States Exclusive Economic Zone (Hawaii)")
 
 eez_stats <- eez_stats %>%
-  mutate(g7 = eez %in% g7_eezs)
+  mutate(g7 = eez %in% g7_eez_names)
 
 eez_stats %>%
   rmarkdown::paged_table(options = list(cols.min.print = 3))
@@ -241,5 +251,4 @@ ggplot() +
   ) +
   xlab("") + ylab("") + ggtitle("Biomass") +
   coord_sf(crs = "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs" )
-```
 ```

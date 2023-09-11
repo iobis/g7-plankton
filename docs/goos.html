@@ -454,32 +454,33 @@ map:</p>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>world <span class="ot">&lt;-</span> <span class="fu">ne_countries</span>(<span class="at">scale =</span> <span class="st">&quot;medium&quot;</span>, <span class="at">returnclass =</span> <span class="st">&quot;sf&quot;</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>programs_raw <span class="ot">&lt;-</span> <span class="fu">st_read</span>(url, <span class="at">quiet =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="fu">st_make_valid</span>()</span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>bbox <span class="ot">&lt;-</span> <span class="fu">st_as_sfc</span>(<span class="st">&quot;POLYGON((-180 -90, -180 90, 179.9 90, 179.9 -90, -180 -90))&quot;</span>, <span class="at">crs =</span> <span class="dv">4326</span>)</span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>programs <span class="ot">&lt;-</span> <span class="fu">st_crop</span>(programs_raw, bbox) <span class="sc">%&gt;%</span></span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  <span class="fu">st_segmentize</span>(<span class="at">dfMaxLength =</span> <span class="dv">10000</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  <span class="fu">st_wrap_dateline</span>(<span class="at">options =</span> <span class="fu">c</span>(<span class="st">&quot;WRAPDATELINE=YES&quot;</span>, <span class="st">&quot;DATELINEOFFSET=230&quot;</span>))</span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> world, <span class="at">fill =</span> <span class="st">&quot;#dddddd&quot;</span>, <span class="at">color =</span> <span class="st">&quot;#888888&quot;</span>, <span class="at">lwd =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> programs, <span class="at">color =</span> <span class="st">&quot;#16dbcb&quot;</span>, <span class="at">fill =</span> <span class="fu">rgb</span>(<span class="fl">0.086</span>, <span class="fl">0.8588</span>, <span class="fl">0.796</span>, <span class="fl">0.1</span>), <span class="at">size =</span> <span class="fl">0.5</span>, <span class="at">linewidth =</span> <span class="fl">0.25</span>) <span class="sc">+</span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>    <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>    <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(), </span>
-<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>    <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>    <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
-<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a>    <span class="at">legend.key.width =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;cm&quot;</span>)</span>
-<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
-<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">crs =</span> <span class="st">&quot;+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs&quot;</span> )</span></code></pre></div>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>bbox <span class="ot">&lt;-</span> <span class="fu">st_as_sfc</span>(<span class="st">&quot;POLYGON((-180 -90, -180 90, 179.9 90, 179.9 -90, -180 -90))&quot;</span>, <span class="at">crs =</span> <span class="dv">4326</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>programs <span class="ot">&lt;-</span> <span class="fu">st_read</span>(url, <span class="at">quiet =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">st_make_valid</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  <span class="fu">st_crop</span>(bbox) <span class="sc">%&gt;%</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  <span class="fu">st_segmentize</span>(<span class="at">dfMaxLength =</span> <span class="dv">10000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  <span class="fu">st_wrap_dateline</span>(<span class="at">options =</span> <span class="fu">c</span>(<span class="st">&quot;WRAPDATELINE=YES&quot;</span>, <span class="st">&quot;DATELINEOFFSET=230&quot;</span>))</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> world, <span class="at">fill =</span> <span class="st">&quot;#dddddd&quot;</span>, <span class="at">color =</span> <span class="st">&quot;#888888&quot;</span>, <span class="at">lwd =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> programs, <span class="at">color =</span> <span class="st">&quot;#16dbcb&quot;</span>, <span class="at">fill =</span> <span class="fu">rgb</span>(<span class="fl">0.086</span>, <span class="fl">0.8588</span>, <span class="fl">0.796</span>, <span class="fl">0.1</span>), <span class="at">size =</span> <span class="fl">0.5</span>, <span class="at">linewidth =</span> <span class="fl">0.25</span>) <span class="sc">+</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>    <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>    <span class="at">panel.grid.major.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>    <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>    <span class="at">panel.grid.minor.y =</span> <span class="fu">element_blank</span>(), </span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>    <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>    <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a>    <span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">&quot;bottom&quot;</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a>    <span class="at">legend.key.width =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;cm&quot;</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">crs =</span> <span class="st">&quot;+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs&quot;</span> )</span></code></pre></div>
 <p><img src="goos_files/figure-html/unnamed-chunk-1-1.png" width="100%" /></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> world, <span class="at">fill =</span> <span class="st">&quot;#dddddd&quot;</span>, <span class="at">color =</span> <span class="st">&quot;#888888&quot;</span>, <span class="at">lwd =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
@@ -501,6 +502,49 @@ map:</p>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">crs =</span> <span class="st">&quot;+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs&quot;</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">10700000</span>, <span class="dv">2000000</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">1100000</span>, <span class="dv">7500000</span>))</span></code></pre></div>
 <p><img src="goos_files/figure-html/unnamed-chunk-2-1.png" width="100%" /></p>
+</div>
+<div id="programs-by-g7-eez" class="section level2">
+<h2>Programs by G7 EEZ</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">library</span>(arrow)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">library</span>(h3jsr)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>h3_res <span class="ot">&lt;-</span> <span class="dv">7</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>g7_eez_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Canadian Exclusive Economic Zone&quot;</span>, <span class="st">&quot;French Exclusive Economic Zone&quot;</span>, <span class="st">&quot;French Guiana Exclusive Economic Zone&quot;</span>, <span class="st">&quot;French Polynesian Exclusive Economic Zone&quot;</span>, <span class="st">&quot;German Exclusive Economic Zone&quot;</span>, <span class="st">&quot;Italian Exclusive Economic Zone&quot;</span>, <span class="st">&quot;Japanese Exclusive Economic Zone&quot;</span>, <span class="st">&quot;United Kingdom Exclusive Economic Zone&quot;</span>, <span class="st">&quot;United States Exclusive Economic Zone&quot;</span>, <span class="st">&quot;United States Exclusive Economic Zone (Alaska)&quot;</span>, <span class="st">&quot;United States Exclusive Economic Zone (Hawaii)&quot;</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>programs_buffered <span class="ot">&lt;-</span> programs <span class="sc">%&gt;%</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="fu">st_buffer</span>(<span class="fl">0.1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="fu">group_by</span>(name) <span class="sc">%&gt;%</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="fu">summarize</span>()</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>program_cells_list <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(programs_buffered<span class="sc">$</span>geometry, <span class="cf">function</span>(geom) {</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>  <span class="fu">polygon_to_cells</span>(<span class="fu">st_sfc</span>(geom, <span class="at">crs =</span> <span class="dv">4326</span>), h3_res)</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>})</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="fu">names</span>(program_cells_list) <span class="ot">&lt;-</span> programs_buffered<span class="sc">$</span>name</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co"># test &lt;- purrr::imap(mylist, function(x, name) {</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#   data.frame(name = name, h3 = x)</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co"># })</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co"># program_cells &lt;- polygon_to_cells(programs_buffered, h3_res)</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co"># eez_cells_g7 &lt;- open_dataset(&quot;eez_h3/eez_h3_res7.parquet&quot;) %&gt;%</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#   filter(GEONAME %in% g7_eez_names) %&gt;%</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#   select(h3 = h3_index, eez = GEONAME) %&gt;%</span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#   as.data.frame()</span></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co"># sites_h3 &lt;- sites %&gt;%</span></span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#   st_drop_geometry() %&gt;%</span></span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a><span class="co">#   select(name_simplified) %&gt;%</span></span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a><span class="co">#   mutate(h3 = polys) %&gt;%</span></span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a><span class="co">#   tidyr::unnest(h3)</span></span></code></pre></div>
 </div>
 
 
