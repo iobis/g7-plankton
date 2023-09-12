@@ -83,7 +83,7 @@ library(arrow)
 library(h3jsr)
 library(tibble)
 
-h3_res <- 7
+h3_res <- 6
 
 g7_eez_names <- c("Canadian Exclusive Economic Zone", "French Exclusive Economic Zone", "French Guiana Exclusive Economic Zone", "French Polynesian Exclusive Economic Zone", "German Exclusive Economic Zone", "Italian Exclusive Economic Zone", "Japanese Exclusive Economic Zone", "United Kingdom Exclusive Economic Zone", "United States Exclusive Economic Zone", "United States Exclusive Economic Zone (Alaska)", "United States Exclusive Economic Zone (Hawaii)")
 
@@ -93,30 +93,29 @@ programs_buffered <- programs %>%
   summarize()
 
 program_cells_list <- purrr::map(programs_buffered$geometry, function(geom) {
-  polygon_to_cells(st_sfc(geom, crs = 4326), h3_res)
+  unlist(polygon_to_cells(st_sfc(geom %>% st_make_valid(), crs = 4326), h3_res), use.names = FALSE)
 })
 names(program_cells_list) <- programs_buffered$name
+program_cells <- purrr::imap(program_cells_list, function(x, name) {
+  if (!is.null(x)) {
+    data.frame(name = name, h3 = x)
+  }
+}) %>%
+  bind_rows()
 
+eez_cells_g7 <- open_dataset(glue("eez_h3/eez_h3_res{h3_res}.parquet")) %>%
+  filter(GEONAME %in% g7_eez_names) %>%
+  select(h3 = h3_index, eez = GEONAME) %>%
+  as.data.frame()
 
+programs_eezs <- program_cells %>%
+  left_join(eez_cells_g7, by = "h3")
 
+programs_eezs_stats <- programs_eezs %>%
+  filter(!is.na(eez)) %>%
+  group_by(eez) %>%
+  summarize(programs = n_distinct(name))
 
-
-# test <- purrr::imap(mylist, function(x, name) {
-#   data.frame(name = name, h3 = x)
-# })
-# 
-# program_cells <- polygon_to_cells(programs_buffered, h3_res)
-# 
-# eez_cells_g7 <- open_dataset("eez_h3/eez_h3_res7.parquet") %>%
-#   filter(GEONAME %in% g7_eez_names) %>%
-#   select(h3 = h3_index, eez = GEONAME) %>%
-#   as.data.frame()
-# 
-# 
-# sites_h3 <- sites %>%
-#   st_drop_geometry() %>%
-#   select(name_simplified) %>%
-#   mutate(h3 = polys) %>%
-#   tidyr::unnest(h3)
-
+programs_eezs_stats %>%
+  rmarkdown::paged_table()
 ```

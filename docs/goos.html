@@ -33,6 +33,8 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -510,7 +512,7 @@ map:</p>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">library</span>(h3jsr)</span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>h3_res <span class="ot">&lt;-</span> <span class="dv">7</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>h3_res <span class="ot">&lt;-</span> <span class="dv">6</span></span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>g7_eez_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Canadian Exclusive Economic Zone&quot;</span>, <span class="st">&quot;French Exclusive Economic Zone&quot;</span>, <span class="st">&quot;French Guiana Exclusive Economic Zone&quot;</span>, <span class="st">&quot;French Polynesian Exclusive Economic Zone&quot;</span>, <span class="st">&quot;German Exclusive Economic Zone&quot;</span>, <span class="st">&quot;Italian Exclusive Economic Zone&quot;</span>, <span class="st">&quot;Japanese Exclusive Economic Zone&quot;</span>, <span class="st">&quot;United Kingdom Exclusive Economic Zone&quot;</span>, <span class="st">&quot;United States Exclusive Economic Zone&quot;</span>, <span class="st">&quot;United States Exclusive Economic Zone (Alaska)&quot;</span>, <span class="st">&quot;United States Exclusive Economic Zone (Hawaii)&quot;</span>)</span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
@@ -520,31 +522,36 @@ map:</p>
 <span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="fu">summarize</span>()</span>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>program_cells_list <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(programs_buffered<span class="sc">$</span>geometry, <span class="cf">function</span>(geom) {</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>  <span class="fu">polygon_to_cells</span>(<span class="fu">st_sfc</span>(geom, <span class="at">crs =</span> <span class="dv">4326</span>), h3_res)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>  <span class="fu">unlist</span>(<span class="fu">polygon_to_cells</span>(<span class="fu">st_sfc</span>(geom <span class="sc">%&gt;%</span> <span class="fu">st_make_valid</span>(), <span class="at">crs =</span> <span class="dv">4326</span>), h3_res), <span class="at">use.names =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>})</span>
 <span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="fu">names</span>(program_cells_list) <span class="ot">&lt;-</span> programs_buffered<span class="sc">$</span>name</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co"># test &lt;- purrr::imap(mylist, function(x, name) {</span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#   data.frame(name = name, h3 = x)</span></span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co"># })</span></span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co"># program_cells &lt;- polygon_to_cells(programs_buffered, h3_res)</span></span>
-<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co"># eez_cells_g7 &lt;- open_dataset(&quot;eez_h3/eez_h3_res7.parquet&quot;) %&gt;%</span></span>
-<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#   filter(GEONAME %in% g7_eez_names) %&gt;%</span></span>
-<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#   select(h3 = h3_index, eez = GEONAME) %&gt;%</span></span>
-<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#   as.data.frame()</span></span>
-<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co"># sites_h3 &lt;- sites %&gt;%</span></span>
-<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#   st_drop_geometry() %&gt;%</span></span>
-<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a><span class="co">#   select(name_simplified) %&gt;%</span></span>
-<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a><span class="co">#   mutate(h3 = polys) %&gt;%</span></span>
-<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a><span class="co">#   tidyr::unnest(h3)</span></span></code></pre></div>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>program_cells <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">imap</span>(program_cells_list, <span class="cf">function</span>(x, name) {</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(x)) {</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">name =</span> name, <span class="at">h3 =</span> x)</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>  }</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>}) <span class="sc">%&gt;%</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>  <span class="fu">bind_rows</span>()</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>eez_cells_g7 <span class="ot">&lt;-</span> <span class="fu">open_dataset</span>(<span class="fu">glue</span>(<span class="st">&quot;eez_h3/eez_h3_res{h3_res}.parquet&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>  <span class="fu">filter</span>(GEONAME <span class="sc">%in%</span> g7_eez_names) <span class="sc">%&gt;%</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">h3 =</span> h3_index, <span class="at">eez =</span> GEONAME) <span class="sc">%&gt;%</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>programs_eezs <span class="ot">&lt;-</span> program_cells <span class="sc">%&gt;%</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>  <span class="fu">left_join</span>(eez_cells_g7, <span class="at">by =</span> <span class="st">&quot;h3&quot;</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>programs_eezs_stats <span class="ot">&lt;-</span> programs_eezs <span class="sc">%&gt;%</span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(eez)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>  <span class="fu">group_by</span>(eez) <span class="sc">%&gt;%</span></span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">programs =</span> <span class="fu">n_distinct</span>(name))</span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>programs_eezs_stats <span class="sc">%&gt;%</span></span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>  rmarkdown<span class="sc">::</span><span class="fu">paged_table</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["eez"],"name":[1],"type":["chr"],"align":["left"]},{"label":["programs"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Canadian Exclusive Economic Zone","2":"8"},{"1":"French Exclusive Economic Zone","2":"34"},{"1":"French Polynesian Exclusive Economic Zone","2":"2"},{"1":"German Exclusive Economic Zone","2":"11"},{"1":"Italian Exclusive Economic Zone","2":"13"},{"1":"Japanese Exclusive Economic Zone","2":"4"},{"1":"United Kingdom Exclusive Economic Zone","2":"29"},{"1":"United States Exclusive Economic Zone","2":"21"},{"1":"United States Exclusive Economic Zone (Alaska)","2":"9"},{"1":"United States Exclusive Economic Zone (Hawaii)","2":"4"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
 </div>
 
 
