@@ -538,10 +538,10 @@ map:</p>
 <span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a></span>
 <span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>programs_eezs <span class="ot">&lt;-</span> program_cells <span class="sc">%&gt;%</span></span>
-<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>  <span class="fu">left_join</span>(eez_cells_g7, <span class="at">by =</span> <span class="st">&quot;h3&quot;</span>)</span>
-<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a></span>
-<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>programs_eezs_stats <span class="ot">&lt;-</span> programs_eezs <span class="sc">%&gt;%</span></span>
-<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(eez)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>  <span class="fu">left_join</span>(eez_cells_g7, <span class="at">by =</span> <span class="st">&quot;h3&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(eez))</span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>programs_eezs_stats <span class="ot">&lt;-</span> programs_eezs <span class="sc">%&gt;%</span></span>
 <span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>  <span class="fu">group_by</span>(eez) <span class="sc">%&gt;%</span></span>
 <span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">programs =</span> <span class="fu">n_distinct</span>(name))</span>
 <span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a></span>
@@ -552,6 +552,43 @@ map:</p>
 {"columns":[{"label":["eez"],"name":[1],"type":["chr"],"align":["left"]},{"label":["programs"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Canadian Exclusive Economic Zone","2":"8"},{"1":"French Exclusive Economic Zone","2":"34"},{"1":"French Polynesian Exclusive Economic Zone","2":"2"},{"1":"German Exclusive Economic Zone","2":"11"},{"1":"Italian Exclusive Economic Zone","2":"13"},{"1":"Japanese Exclusive Economic Zone","2":"4"},{"1":"United Kingdom Exclusive Economic Zone","2":"29"},{"1":"United States Exclusive Economic Zone","2":"21"},{"1":"United States Exclusive Economic Zone (Alaska)","2":"9"},{"1":"United States Exclusive Economic Zone (Hawaii)","2":"4"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+</div>
+<div id="programs-temporal-scope" class="section level2">
+<h2>Programs temporal scope</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>g7_programs <span class="ot">&lt;-</span> <span class="fu">unique</span>(programs_eezs<span class="sc">$</span>name)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>g7_program_ids <span class="ot">&lt;-</span> programs <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">%in%</span> g7_programs) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(pk) <span class="sc">%&gt;%</span> <span class="fu">unique</span>()</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>programs_json <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(g7_program_ids, <span class="cf">function</span>(id) {</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">fromJSON</span>(<span class="fu">glue</span>(<span class="st">&quot;https://geonode.goosocean.org/api/v2/layers/{id}&quot;</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>})</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>programs_time <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(programs_json, <span class="cf">function</span>(program) {</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  start <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  end <span class="ot">&lt;-</span> <span class="fu">Sys.Date</span>()</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>  active <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(program<span class="sc">$</span>layer<span class="sc">$</span>temporal_extent_start)) start <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(program<span class="sc">$</span>layer<span class="sc">$</span>temporal_extent_start)</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(program<span class="sc">$</span>layer<span class="sc">$</span>temporal_extent_end)) {</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>    end <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(program<span class="sc">$</span>layer<span class="sc">$</span>temporal_extent_end)</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>    active <span class="ot">&lt;-</span> <span class="cn">FALSE</span>    </span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  }</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>    <span class="at">title =</span> program<span class="sc">$</span>layer<span class="sc">$</span>title,</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>    <span class="at">start =</span> start,</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>    <span class="at">end =</span> end,</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>    <span class="at">active =</span> active</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>  )</span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>}) <span class="sc">%&gt;%</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>  <span class="fu">bind_rows</span>()</span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>  <span class="fu">geom_segment</span>(programs_time, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">y =</span> title, <span class="at">yend =</span> title, <span class="at">x =</span> start, <span class="at">xend =</span> end, <span class="at">color =</span> active), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#A73121&quot;</span>, <span class="st">&quot;#A2C579&quot;</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>  <span class="fu">scale_y_discrete</span>(<span class="at">limits =</span> rev) <span class="sc">+</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Program temporal scope&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="goos_files/figure-html/unnamed-chunk-4-1.png" width="100%" /></p>
 </div>
 
 

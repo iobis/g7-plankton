@@ -109,13 +109,51 @@ eez_cells_g7 <- open_dataset(glue("eez_h3/eez_h3_res{h3_res}.parquet")) %>%
   as.data.frame()
 
 programs_eezs <- program_cells %>%
-  left_join(eez_cells_g7, by = "h3")
+  left_join(eez_cells_g7, by = "h3") %>%
+  filter(!is.na(eez))
 
 programs_eezs_stats <- programs_eezs %>%
-  filter(!is.na(eez)) %>%
   group_by(eez) %>%
   summarize(programs = n_distinct(name))
 
 programs_eezs_stats %>%
   rmarkdown::paged_table()
+```
+
+## Programs temporal scope
+
+```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=14, fig.height=16, cache=TRUE}
+library(jsonlite)
+
+g7_programs <- unique(programs_eezs$name)
+g7_program_ids <- programs %>% filter(name %in% g7_programs) %>% pull(pk) %>% unique()
+
+programs_json <- purrr::map(g7_program_ids, function(id) {
+  fromJSON(glue("https://geonode.goosocean.org/api/v2/layers/{id}"))
+})
+
+programs_time <- purrr::map(programs_json, function(program) {
+  start <- NA
+  end <- Sys.Date()
+  active <- TRUE
+  if (!is.null(program$layer$temporal_extent_start)) start <- as.Date(program$layer$temporal_extent_start)
+  if (!is.null(program$layer$temporal_extent_end)) {
+    end <- as.Date(program$layer$temporal_extent_end)
+    active <- FALSE    
+  }
+  data.frame(
+    title = program$layer$title,
+    start = start,
+    end = end,
+    active = active
+  )
+}) %>%
+  bind_rows()
+
+ggplot() +
+  geom_segment(programs_time, mapping = aes(y = title, yend = title, x = start, xend = end, color = active), size = 2) +
+  scale_color_manual(values = c("#A73121", "#A2C579"), guide = "none") +
+  scale_y_discrete(limits = rev) +
+  ylab("") + xlab("") + ggtitle("Program temporal scope") +
+  theme_minimal()
 ```
