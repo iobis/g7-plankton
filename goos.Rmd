@@ -108,11 +108,11 @@ eez_cells_g7 <- open_dataset(glue("eez_h3/eez_h3_res{h3_res}.parquet")) %>%
   select(h3 = h3_index, eez = GEONAME) %>%
   as.data.frame()
 
-programs_eezs <- program_cells %>%
+programs_eezs_cells <- program_cells %>%
   left_join(eez_cells_g7, by = "h3") %>%
   filter(!is.na(eez))
 
-programs_eezs_stats <- programs_eezs %>%
+programs_eezs_stats <- programs_eezs_cells %>%
   group_by(eez) %>%
   summarize(programs = n_distinct(name))
 
@@ -147,6 +147,7 @@ programs_attr <- purrr::map(programs_json, function(program) {
   if (!is.null(program$layer$obis_pub_interest)) obis_pub_interest <- program$layer$obis_pub_interest
   data.frame(
     title = program$layer$title,
+    name = program$layer$name,
     start = start,
     end = end,
     active = active,
@@ -179,6 +180,42 @@ ggplot() +
 ggplot() +
   geom_bar(programs_attr, mapping = aes(x = obis_pub_interest, fill = obis_pub_interest)) +
   scale_fill_manual(values = c("#FF6961", "#7ABD7E"), guide = "none", na.value = "#eeeeee") +
+  theme_minimal() +
+  xlab("") + ggtitle("Interested in publishing to OBIS")
+```
+
+### OBIS data publishing by G7 country
+
+Note: this is based on EEZs and not on program affiliations as these are not reliably available.
+
+```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=12, fig.height=7, cache=TRUE}
+programs_eezs <- programs_eezs_cells %>%
+  group_by(name, eez) %>%
+  summarize()
+
+in_obis_stats <- programs_attr %>%
+  left_join(programs_eezs, by = "name") %>%
+  group_by(eez, data_in_obis) %>%
+  summarize(programs = n_distinct(name))
+
+ggplot() +
+  geom_bar(in_obis_stats, mapping = aes(x = data_in_obis, fill = data_in_obis, y = programs), stat = "identity") +
+  scale_fill_manual(values = c("#FF6961", "#FFB54C", "#7ABD7E"), guide = "none", na.value = "#eeeeee") +
+  facet_wrap(~eez) +
+  theme_minimal() +
+  xlab("") + ggtitle("Data in OBIS")
+```
+
+```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=12, fig.height=7, cache=TRUE}
+obis_pub_interest_stats <- programs_attr %>%
+  left_join(programs_eezs, by = "name") %>%
+  group_by(eez, obis_pub_interest) %>%
+  summarize(programs = n_distinct(name))
+
+ggplot() +
+  geom_bar(obis_pub_interest_stats, mapping = aes(x = obis_pub_interest, fill = obis_pub_interest, y = programs), stat = "identity") +
+  scale_fill_manual(values = c("#FF6961", "#7ABD7E"), guide = "none", na.value = "#eeeeee") +
+  facet_wrap(~eez) +
   theme_minimal() +
   xlab("") + ggtitle("Interested in publishing to OBIS")
 ```

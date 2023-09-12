@@ -537,11 +537,11 @@ map:</p>
 <span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">h3 =</span> h3_index, <span class="at">eez =</span> GEONAME) <span class="sc">%&gt;%</span></span>
 <span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
 <span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a></span>
-<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>programs_eezs <span class="ot">&lt;-</span> program_cells <span class="sc">%&gt;%</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>programs_eezs_cells <span class="ot">&lt;-</span> program_cells <span class="sc">%&gt;%</span></span>
 <span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>  <span class="fu">left_join</span>(eez_cells_g7, <span class="at">by =</span> <span class="st">&quot;h3&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(eez))</span>
 <span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a></span>
-<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>programs_eezs_stats <span class="ot">&lt;-</span> programs_eezs <span class="sc">%&gt;%</span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>programs_eezs_stats <span class="ot">&lt;-</span> programs_eezs_cells <span class="sc">%&gt;%</span></span>
 <span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>  <span class="fu">group_by</span>(eez) <span class="sc">%&gt;%</span></span>
 <span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">programs =</span> <span class="fu">n_distinct</span>(name))</span>
 <span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a></span>
@@ -579,22 +579,23 @@ map:</p>
 <span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(program<span class="sc">$</span>layer<span class="sc">$</span>obis_pub_interest)) obis_pub_interest <span class="ot">&lt;-</span> program<span class="sc">$</span>layer<span class="sc">$</span>obis_pub_interest</span>
 <span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
 <span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>    <span class="at">title =</span> program<span class="sc">$</span>layer<span class="sc">$</span>title,</span>
-<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>    <span class="at">start =</span> start,</span>
-<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>    <span class="at">end =</span> end,</span>
-<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>    <span class="at">active =</span> active,</span>
-<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>    <span class="at">obis_pub_interest =</span> obis_pub_interest,</span>
-<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>    <span class="at">data_in_obis =</span> data_in_obis</span>
-<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>  )</span>
-<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>}) <span class="sc">%&gt;%</span></span>
-<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>  <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">data_in_obis =</span> <span class="fu">factor</span>(data_in_obis, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;no&quot;</span>, <span class="st">&quot;some&quot;</span>, <span class="st">&quot;all&quot;</span>)))</span>
-<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a></span>
-<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a>  <span class="fu">geom_segment</span>(programs_attr, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">y =</span> title, <span class="at">yend =</span> title, <span class="at">x =</span> start, <span class="at">xend =</span> end, <span class="at">color =</span> active), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#A73121&quot;</span>, <span class="st">&quot;#A2C579&quot;</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
-<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a>  <span class="fu">scale_y_discrete</span>(<span class="at">limits =</span> rev) <span class="sc">+</span></span>
-<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Program temporal scope&quot;</span>) <span class="sc">+</span></span>
-<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>    <span class="at">name =</span> program<span class="sc">$</span>layer<span class="sc">$</span>name,</span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>    <span class="at">start =</span> start,</span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>    <span class="at">end =</span> end,</span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>    <span class="at">active =</span> active,</span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>    <span class="at">obis_pub_interest =</span> obis_pub_interest,</span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>    <span class="at">data_in_obis =</span> data_in_obis</span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>  )</span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>}) <span class="sc">%&gt;%</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>  <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">data_in_obis =</span> <span class="fu">factor</span>(data_in_obis, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;no&quot;</span>, <span class="st">&quot;some&quot;</span>, <span class="st">&quot;all&quot;</span>)))</span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a>  <span class="fu">geom_segment</span>(programs_attr, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">y =</span> title, <span class="at">yend =</span> title, <span class="at">x =</span> start, <span class="at">xend =</span> end, <span class="at">color =</span> active), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#A73121&quot;</span>, <span class="st">&quot;#A2C579&quot;</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a>  <span class="fu">scale_y_discrete</span>(<span class="at">limits =</span> rev) <span class="sc">+</span></span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Program temporal scope&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <p><img src="goos_files/figure-html/unnamed-chunk-4-1.png" width="100%" /></p>
 </div>
 <div id="obis-data-publishing" class="section level2">
@@ -611,6 +612,39 @@ map:</p>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Interested in publishing to OBIS&quot;</span>)</span></code></pre></div>
 <p><img src="goos_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div id="obis-data-publishing-by-g7-country" class="section level3">
+<h3>OBIS data publishing by G7 country</h3>
+<p>Note: this is based on EEZs and not on program affiliations as these
+are not reliably available.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>programs_eezs <span class="ot">&lt;-</span> programs_eezs_cells <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">group_by</span>(name, eez) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">summarize</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>in_obis_stats <span class="ot">&lt;-</span> programs_attr <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">left_join</span>(programs_eezs, <span class="at">by =</span> <span class="st">&quot;name&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">group_by</span>(eez, data_in_obis) <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">programs =</span> <span class="fu">n_distinct</span>(name))</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="fu">geom_bar</span>(in_obis_stats, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> data_in_obis, <span class="at">fill =</span> data_in_obis, <span class="at">y =</span> programs), <span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#FF6961&quot;</span>, <span class="st">&quot;#FFB54C&quot;</span>, <span class="st">&quot;#7ABD7E&quot;</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>, <span class="at">na.value =</span> <span class="st">&quot;#eeeeee&quot;</span>) <span class="sc">+</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>eez) <span class="sc">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Data in OBIS&quot;</span>)</span></code></pre></div>
+<p><img src="goos_files/figure-html/unnamed-chunk-7-1.png" width="100%" /></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>obis_pub_interest_stats <span class="ot">&lt;-</span> programs_attr <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">left_join</span>(programs_eezs, <span class="at">by =</span> <span class="st">&quot;name&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">group_by</span>(eez, obis_pub_interest) <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">programs =</span> <span class="fu">n_distinct</span>(name))</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="fu">geom_bar</span>(obis_pub_interest_stats, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> obis_pub_interest, <span class="at">fill =</span> obis_pub_interest, <span class="at">y =</span> programs), <span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#FF6961&quot;</span>, <span class="st">&quot;#7ABD7E&quot;</span>), <span class="at">guide =</span> <span class="st">&quot;none&quot;</span>, <span class="at">na.value =</span> <span class="st">&quot;#eeeeee&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>eez) <span class="sc">+</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Interested in publishing to OBIS&quot;</span>)</span></code></pre></div>
+<p><img src="goos_files/figure-html/unnamed-chunk-8-1.png" width="100%" /></p>
+</div>
 </div>
 
 
