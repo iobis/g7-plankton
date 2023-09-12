@@ -132,28 +132,53 @@ programs_json <- purrr::map(g7_program_ids, function(id) {
   fromJSON(glue("https://geonode.goosocean.org/api/v2/layers/{id}"))
 })
 
-programs_time <- purrr::map(programs_json, function(program) {
+programs_attr <- purrr::map(programs_json, function(program) {
   start <- NA
   end <- Sys.Date()
   active <- TRUE
+  data_in_obis <- NA
+  obis_pub_interest <- NA
   if (!is.null(program$layer$temporal_extent_start)) start <- as.Date(program$layer$temporal_extent_start)
   if (!is.null(program$layer$temporal_extent_end)) {
     end <- as.Date(program$layer$temporal_extent_end)
     active <- FALSE    
   }
+  if (!is.null(program$layer$data_in_obis)) data_in_obis <- program$layer$data_in_obis
+  if (!is.null(program$layer$obis_pub_interest)) obis_pub_interest <- program$layer$obis_pub_interest
   data.frame(
     title = program$layer$title,
     start = start,
     end = end,
-    active = active
+    active = active,
+    obis_pub_interest = obis_pub_interest,
+    data_in_obis = data_in_obis
   )
 }) %>%
-  bind_rows()
+  bind_rows() %>%
+  mutate(data_in_obis = factor(data_in_obis, levels = c("no", "some", "all")))
 
 ggplot() +
-  geom_segment(programs_time, mapping = aes(y = title, yend = title, x = start, xend = end, color = active), size = 2) +
+  geom_segment(programs_attr, mapping = aes(y = title, yend = title, x = start, xend = end, color = active), size = 2) +
   scale_color_manual(values = c("#A73121", "#A2C579"), guide = "none") +
   scale_y_discrete(limits = rev) +
   ylab("") + xlab("") + ggtitle("Program temporal scope") +
   theme_minimal()
+```
+
+## OBIS data publishing
+
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
+ggplot() +
+  geom_bar(programs_attr, mapping = aes(x = data_in_obis, fill = data_in_obis)) +
+  scale_fill_manual(values = c("#FF6961", "#FFB54C", "#7ABD7E"), guide = "none", na.value = "#eeeeee") +
+  theme_minimal() +
+  xlab("") + ggtitle("Data in OBIS")
+```
+
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
+ggplot() +
+  geom_bar(programs_attr, mapping = aes(x = obis_pub_interest, fill = obis_pub_interest)) +
+  scale_fill_manual(values = c("#FF6961", "#7ABD7E"), guide = "none", na.value = "#eeeeee") +
+  theme_minimal() +
+  xlab("") + ggtitle("Interested in publishing to OBIS")
 ```
