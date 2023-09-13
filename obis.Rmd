@@ -168,6 +168,13 @@ ggplot(eez_stats %>% filter(g7)) +
   ggtitle("Plankton statistics for G7 EEZs")
 ```
 
+```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=12, fig.height=8, cache=TRUE}
+ggplot(eez_stats %>% arrange(desc(records)) %>% head(40)) +
+  geom_bar(mapping = aes(x = records, y = reorder(eez, records), fill = g7), stat = "identity") +
+  scale_fill_manual(values = c("#22668D", "#7ABD7E"), guide = "none", na.value = "#eeeeee") +
+  ylab("EEZ") + ggtitle("OBIS plankton records by EEZ (green = G7)")
+```
+
 ## Measurement types
 
 ```{r, message=FALSE, warning=FALSE, cache=TRUE}
