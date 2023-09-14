@@ -75,7 +75,7 @@ ggplot() +
   coord_sf(crs = "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs", xlim = c(-10700000, 2000000), ylim = c(1100000, 7500000))
 ```
 
-## Programs by G7 EEZ
+## Plankton programs by G7 EEZ
 
 ```{r, message=FALSE, warning=FALSE, cache=TRUE}
 library(dplyr)
@@ -120,12 +120,18 @@ programs_eezs_stats %>%
   rmarkdown::paged_table()
 ```
 
-## Programs temporal scope
+Total number of G7 plankton programs:
+
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
+n_distinct(programs_eezs_cells$name)
+```
+
+## G7 plankton programs temporal scope
 
 ```{r, message=FALSE, warning=FALSE, out.width="100%", fig.width=14, fig.height=16, cache=TRUE}
 library(jsonlite)
 
-g7_programs <- unique(programs_eezs$name)
+g7_programs <- unique(programs_eezs_cells$name)
 g7_program_ids <- programs %>% filter(name %in% g7_programs) %>% pull(pk) %>% unique()
 
 programs_json <- purrr::map(g7_program_ids, function(id) {
@@ -166,7 +172,7 @@ ggplot() +
   theme_minimal()
 ```
 
-## OBIS data publishing
+## G7 plankton programs OBIS data publishing
 
 ```{r, message=FALSE, warning=FALSE, cache=TRUE}
 ggplot() +
@@ -184,7 +190,7 @@ ggplot() +
   xlab("") + ggtitle("Interested in publishing to OBIS")
 ```
 
-### OBIS data publishing by G7 country
+### By country
 
 Note: this is based on EEZs and not on program affiliations as these are not reliably available.
 
